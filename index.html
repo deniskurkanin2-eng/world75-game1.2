@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#101827">
+<title>МИР: 75% — стратегия</title>
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#101827;color:#edf4ff;font-family:system-ui,-apple-system,Segoe UI,sans-serif}
+main{max-width:900px;margin:auto;padding:18px}.hide{display:none!important}.panel,.stat{background:#1b293b;border:1px solid #34475e;border-radius:14px;padding:15px}
+button,input,select{font:inherit}button{cursor:pointer;border:0;border-radius:9px;padding:10px 14px;background:#33465c;color:white;font-weight:650}
+button.primary{background:#2563eb}button:disabled{opacity:.45;cursor:not-allowed}input,select{width:100%;padding:12px;border:1px solid #52677f;border-radius:9px;background:#26374c;color:white}
+.muted{color:#9aabc0}.title{font-size:clamp(26px,5vw,38px);font-weight:850;letter-spacing:-1px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:9px}.country{display:flex;align-items:center;gap:9px;text-align:left;background:#26374c;border:1px solid #40536a;padding:10px;min-width:0}.country.selected{border-color:#60a5fa;background:#304a66}.flag{font-size:28px}.small{font-size:12px}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.tabs{display:flex;gap:7px;flex-wrap:wrap}.tabs button.active{background:#2563eb}.bar{height:9px;background:#33445a;border-radius:8px;overflow:hidden}.bar>div{height:100%;background:#38bdf8}.log{font-size:13px;padding:8px 0;border-bottom:1px solid #34475e}.stat{padding:12px}.stat b{display:block;margin-top:4px}.section{display:grid;gap:12px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px}.center{min-height:75vh;display:flex;align-items:center;justify-content:center;text-align:center}.center .panel{width:min(100%,390px);text-align:left}.space{display:grid;gap:12px}
+@media(max-width:600px){main{padding:10px}.country{padding:9px;min-height:58px}.flag{font-size:25px}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.top{align-items:flex-start}.tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.tabs button{padding:11px 5px;font-size:13px}.panel{padding:12px}button,input,select{min-height:44px}.stat{min-width:0;overflow-wrap:anywhere}}.searchselect{display:grid;gap:6px}.hint{font-size:12px;color:#9aabc0}
+</style>
+</head>
+<body>
+<main>
+<section id="start" class="center">
+ <div class="space" style="width:100%;justify-items:center">
+  <div style="font-size:64px">🌍</div><div class="title">МИР: 75%</div>
+  <p class="muted">Большая стратегия. Твоя история начинается здесь.</p>
+  <div class="panel space"><label class="small muted">Твой автоматически созданный уникальный ник</label><div id="nick" style="font-weight:800;overflow-wrap:anywhere;color:#93c5fd">Создаём ник…</div><span class="muted small">Он сохранится на этом устройстве.</span><button class="primary" id="enter">Начать игру →</button></div>
+ </div>
+</section>
+<section id="lobby" class="center hide"><div class="space" style="width:100%;justify-items:center"><div style="font-size:60px">🌐</div><div class="title">МИР: 75%</div><p class="muted">Добро пожаловать, <b id="player"></b>!</p><div class="panel space"><b>Главное меню</b><p class="muted">Выбери государство и начни создавать свою державу.</p><button class="primary" id="play">⚔️ ИГРАТЬ</button></div></div></section>
+<section id="choose" class="hide space">
+ <div class="top"><div><div class="title">Выбор страны</div><div class="muted small">Выбери государство, которым будешь управлять</div></div><div style="font-size:38px">🗺️</div></div>
+ <input id="search" placeholder="🔎 Найти страну...">
+ <div id="regions" class="row"></div>
+ <div class="panel space"><b>Государства</b><div class="muted small">Страны отсортированы по алфавиту. У каждой показан флаг.</div><div id="countries" class="grid"></div><button id="moreCountries" class="hide">Показать ещё страны</button></div>
+ <div id="preview" class="panel space hide" style="text-align:center"><div id="bigflag" style="font-size:64px"></div><b id="selectedname" style="font-size:23px"></b><span id="selectedregion" class="muted small"></span><button class="primary" id="confirm">Начать за эту страну →</button></div>
+</section>
+<section id="game" class="hide space">
+ <div class="top"><div><div class="small muted">ТВОЁ ГОСУДАРСТВО</div><div class="row"><span id="gameflag" style="font-size:30px"></span><b id="gamename" style="font-size:22px"></b></div><div class="small muted">Правитель: <span id="ruler"></span></div></div><button id="newgame">Новая игра</button></div>
+ <div class="grid">
+  <div class="stat">💰 Казна<b id="money"></b></div><div class="stat">🏭 Экономика<b id="econ"></b></div><div class="stat">🛡️ Сила<b id="power"></b></div><div class="stat">🌍 Контроль мира<b id="percent"></b></div>
+ </div>
+ <div class="panel space"><div class="top"><b>Путь к победе</b><b id="progresslabel"></b></div><div class="bar"><div id="progress" style="width:0%"></div></div><span class="muted small">Для победы нужно контролировать 75% стран в игре.</span></div>
+ <div class="tabs" id="tabs"><button class="active" data-page="overview">Обзор</button><button data-page="economy">Экономика</button><button data-page="army">Армия</button><button data-page="diplomacy">Дипломатия</button><button data-page="world">Мир</button></div>
+ <div id="overview" class="panel space"><b>🏛️ Государство</b><span class="muted small">Развивай экономику, усиливай армию и расширяй территорию.</span><div class="stat">🤝 Союзники: <b id="allies"></b><span class="muted small">Автоматический доход каждые 20 секунд</span><b id="incomeTimer">Следующий доход: 20 сек.</b></div></div>
+ <div id="economyPage" class="panel space hide"><b>🏭 Экономика</b><div class="stat">Заводы: <b id="factories"></b><span class="muted small">Доход за 20 секунд: <b id="income"></b></span></div><button class="primary" id="upgrade">Построить завод · <span id="econcost"></span> 💰</button></div>
+ <div id="armyPage" class="panel space hide"><b>🛡️ Армия</b><div class="stat">Сила государства: <b id="armyvalue"></b></div><button class="primary" id="train">Усилить армию · <span id="armycost"></span> 💰</button><b>Выбрать соседнюю страну</b><div class="searchselect"><input id="targetSearch" placeholder="Поиск соседней страны по буквам..."><select id="target"></select></div><button class="primary" id="attack">Начать захват</button><span class="hint">Захватывать можно только государства, имеющие общую сухопутную границу с твоими территориями.</span><span class="muted small">Конфликты — абстрактная игровая механика.</span></div>
+ <div id="diplomacyPage" class="panel space hide"><b>🤝 Дипломатия</b><div class="searchselect"><input id="allySearch" placeholder="Поиск страны по буквам..."><select id="allytarget"></select></div><button class="primary" id="ally">Предложить союз · 100 💰</button><div id="allylist" class="muted small"></div></div>
+ <div id="worldPage" class="panel space hide"><b>🌍 Страны мира</b><input id="worldsearch" placeholder="Поиск страны..."><div class="muted small">🟦 Твоя страна · 🟩 Союзники · ⬛ Независимые · 🟥 ИИ</div><div id="world" class="grid"></div></div>
+ <div class="panel"><b>📜 Новости</b><div id="logs"></div></div>
+</section>
+<section id="win" class="center hide"><div class="space" style="justify-items:center"><div style="font-size:65px">🏆</div><div class="title">МИРОВОЕ ГОСПОДСТВО!</div><p id="wintext" class="muted"></p><button class="primary" id="restart">Новая игра</button></div></section>
+</main>
+<script>
+(()=>{
+const $=id=>document.getElementById(id);
+const regions={
+"Африка":"Алжир|Ангола|Бенин|Ботсвана|Буркина-Фасо|Бурунди|Габон|Гамбия|Гана|Гвинея|Гвинея-Бисау|Джибути|Египет|Замбия|Зимбабве|Кабо-Верде|Камерун|Кения|Коморы|ДР Конго|Республика Конго|Кот-д’Ивуар|Лесото|Либерия|Ливия|Маврикий|Мавритания|Мадагаскар|Малави|Мали|Марокко|Мозамбик|Намибия|Нигер|Нигерия|Руанда|Сан-Томе и Принсипи|Сейшелы|Сенегал|Сомали|Судан|Южный Судан|Сьерра-Леоне|Танзания|Того|Тунис|Уганда|ЦАР|Чад|Экваториальная Гвинея|Эритрея|Эсватини|Эфиопия",
+"Азия":"Афганистан|Армения|Азербайджан|Бангладеш|Бахрейн|Бруней|Бутан|Вьетнам|Грузия|Израиль|Индия|Индонезия|Иордания|Ирак|Иран|Йемен|Казахстан|Камбоджа|Катар|Кипр|Китай|КНДР|Южная Корея|Кувейт|Кыргызстан|Лаос|Ливан|Малайзия|Мальдивы|Монголия|Мьянма|Непал|ОАЭ|Оман|Пакистан|Палестина|Саудовская Аравия|Сингапур|Сирия|Таджикистан|Таиланд|Тимор-Лешти|Туркменистан|Турция|Узбекистан|Филиппины|Шри-Ланка|Япония",
+"Европа":"Австрия|Албания|Андорра|Беларусь|Бельгия|Болгария|Босния и Герцеговина|Ватикан|Великобритания|Венгрия|Германия|Греция|Дания|Ирландия|Исландия|Испания|Италия|Латвия|Литва|Лихтенштейн|Люксембург|Мальта|Молдова|Монако|Нидерланды|Норвегия|Польша|Португалия|Россия|Румыния|Сан-Марино|Северная Македония|Сербия|Словакия|Словения|Украина|Финляндия|Франция|Хорватия|Черногория|Чехия|Швейцария|Швеция|Эстония",
+"Северная Америка":"Антигуа и Барбуда|Багамы|Барбадос|Белиз|Гаити|Гватемала|Гондурас|Гренада|Доминика|Доминиканская Республика|Канада|Коста-Рика|Куба|Мексика|Никарагуа|Панама|Сальвадор|Сент-Винсент и Гренадины|Сент-Китс и Невис|Сент-Люсия|США|Тринидад и Тобаго|Ямайка",
+"Южная Америка":"Аргентина|Боливия|Бразилия|Венесуэла|Гайана|Колумбия|Парагвай|Перу|Суринам|Уругвай|Чили|Эквадор",
+"Океания":"Австралия|Вануату|Кирибати|Маршалловы Острова|Микронезия|Науру|Новая Зеландия|Палау|Папуа — Новая Гвинея|Самоа|Соломоновы Острова|Тонга|Тувалу|Фиджи"
+};
+const iso=`Алжир DZ;Ангола AO;Бенин BJ;Ботсвана BW;Буркина-Фасо BF;Бурунди BI;Габон GA;Гамбия GM;Гана GH;Гвинея GN;Гвинея-Бисау GW;Джибути DJ;Египет EG;Замбия ZM;Зимбабве ZW;Кабо-Верде CV;Камерун CM;Кения KE;Коморы KM;ДР Конго CD;Республика Конго CG;Кот-д’Ивуар CI;Лесото LS;Либерия LR;Ливия LY;Маврикий MU;Мавритания MR;Мадагаскар MG;Малави MW;Мали ML;Марокко MA;Мозамбик MZ;Намибия NA;Нигер NE;Нигерия NG;Руанда RW;Сан-Томе и Принсипи ST;Сейшелы SC;Сенегал SN;Сомали SO;Судан SD;Южный Судан SS;Сьерра-Леоне SL;Танзания TZ;Того TG;Тунис TN;Уганда UG;ЦАР CF;Чад TD;Экваториальная Гвинея GQ;Эритрея ER;Эсватини SZ;Эфиопия ET;Афганистан AF;Армения AM;Азербайджан AZ;Бангладеш BD;Бахрейн BH;Бруней BN;Бутан BT;Вьетнам VN;Грузия GE;Израиль IL;Индия IN;Индонезия ID;Иордания JO;Ирак IQ;Иран IR;Йемен YE;Казахстан KZ;Камбоджа KH;Катар QA;Кипр CY;Китай CN;КНДР KP;Южная Корея KR;Кувейт KW;Кыргызстан KG;Лаос LA;Ливан LB;Малайзия MY;Мальдивы MV;Монголия MN;Мьянма MM;Непал NP;ОАЭ AE;Оман OM;Пакистан PK;Палестина PS;Саудовская Аравия SA;Сингапур SG;Сирия SY;Таджикистан TJ;Таиланд TH;Тимор-Лешти TL;Туркменистан TM;Турция TR;Узбекистан UZ;Филиппины PH;Шри-Ланка LK;Япония JP;Австрия AT;Албания AL;Андорра AD;Беларусь BY;Бельгия BE;Болгария BG;Босния и Герцеговина BA;Ватикан VA;Великобритания GB;Венгрия HU;Германия DE;Греция GR;Дания DK;Ирландия IE;Исландия IS;Испания ES;Италия IT;Латвия LV;Литва LT;Лихтенштейн LI;Люксембург LU;Мальта MT;Молдова MD;Монако MC;Нидерланды NL;Норвегия NO;Польша PL;Португалия PT;Россия RU;Румыния RO;Сан-Марино SM;Северная Македония MK;Сербия RS;Словакия SK;Словения SI;Украина UA;Финляндия FI;Франция FR;Хорватия HR;Черногория ME;Чехия CZ;Швейцария CH;Швеция SE;Эстония EE;Антигуа и Барбуда AG;Багамы BS;Барбадос BB;Белиз BZ;Гаити HT;Гватемала GT;Гондурас HN;Гренада GD;Доминика DM;Доминиканская Республика DO;Канада CA;Коста-Рика CR;Куба CU;Мексика MX;Никарагуа NI;Панама PA;Сальвадор SV;Сент-Винсент и Гренадины VC;Сент-Китс и Невис KN;Сент-Люсия LC;США US;Тринидад и Тобаго TT;Ямайка JM;Аргентина AR;Боливия BO;Бразилия BR;Венесуэла VE;Гайана GY;Колумбия CO;Парагвай PY;Перу PE;Суринам SR;Уругвай UY;Чили CL;Эквадор EC;Австралия AU;Вануату VU;Кирибати KI;Маршалловы Острова MH;Микронезия FM;Науру NR;Новая Зеландия NZ;Палау PW;Папуа — Новая Гвинея PG;Самоа WS;Соломоновы Острова SB;Тонга TO;Тувалу TV;Фиджи FJ`.split(";").map(x=>x.trim().split(" ")).reduce((a,x)=>{let code=x.pop();a[x.join(" ")]=code;return a},{});
+const flag=n=>{let c=iso[n];return c?String.fromCodePoint(...[...c].map(x=>127397+x.charCodeAt(0))):"🏳️"};
+let countries=Object.entries(regions).flatMap(([region,names])=>names.split("|").map(name=>({name,region,owner:"free",strength:1}))).sort((a,b)=>a.name.localeCompare(b.name,"ru"));
+const starts={"США":[12000,18,95],"Китай":[11000,20,90],"Россия":[9000,14,88],"Германия":[8500,13,65],"Япония":[9000,14,62],"Индия":[6500,11,72],"Великобритания":[8000,12,62],"Франция":[8000,12,65],"Канада":[8500,11,58],"Бразилия":[6000,9,52],"Южная Корея":[7500,12,58],"Турция":[5500,8,58],"Италия":[7000,10,52],"Австралия":[7500,10,48],"Саудовская Аравия":[8000,9,60],"Польша":[5000,7,45],"Украина":[3000,4,42],"Беларусь":[2800,4,35],"Румыния":[2600,4,32],"Молдова":[650,1,8],"Монголия":[900,1,12],"Непал":[700,1,10],"Бутан":[600,1,8],"Гаити":[500,1,9],"Нигер":[450,1,8],"Чад":[500,1,9],"Афганистан":[650,1,18],"Либерия":[550,1,9],"Сьерра-Леоне":[550,1,9],"ЦАР":[450,1,8]};
+function startStats(c){if(starts[c.name]){let [cash,f,m]=starts[c.name];return {cash,factories:f,power:m}}const base={"Европа":[3200,5,30],"Азия":[2400,4,27],"Африка":[950,2,16],"Северная Америка":[2200,4,25],"Южная Америка":[2100,4,25],"Океания":[1600,3,20]}[c.region]||[1500,3,20];const hash=[...c.name].reduce((v,ch)=>v+ch.codePointAt(0),0);return {cash:base[0]+(hash%7)*180,factories:base[1]+(hash%3),power:base[2]+(hash%11)}}
+const borders={"США":"Канада|Мексика","Канада":"США","Мексика":"США|Белиз|Гватемала","Молдова":"Румыния|Украина","Румыния":"Молдова|Украина|Болгария|Сербия|Венгрия","Украина":"Польша|Словакия|Венгрия|Румыния|Молдова|Беларусь|Россия","Россия":"Норвегия|Финляндия|Эстония|Латвия|Литва|Польша|Беларусь|Украина|Грузия|Азербайджан|Казахстан|Китай|Монголия|КНДР","Беларусь":"Латвия|Литва|Польша|Украина|Россия","Польша":"Германия|Чехия|Словакия|Украина|Беларусь|Литва|Россия","Германия":"Дания|Польша|Чехия|Австрия|Швейцария|Франция|Люксембург|Бельгия|Нидерланды","Франция":"Бельгия|Люксембург|Германия|Швейцария|Италия|Испания|Андорра|Монако","Испания":"Франция|Андорра|Португалия","Португалия":"Испания","Италия":"Франция|Швейцария|Австрия|Словения|Сан-Марино|Ватикан","Норвегия":"Швеция|Финляндия|Россия","Швеция":"Норвегия|Финляндия","Финляндия":"Швеция|Норвегия|Россия","Китай":"Россия|Монголия|КНДР|Вьетнам|Лаос|Мьянма|Индия|Непал|Бутан|Пакистан|Афганистан|Таджикистан|Кыргызстан|Казахстан","Индия":"Пакистан|Китай|Непал|Бутан|Бангладеш|Мьянма","Пакистан":"Индия|Китай|Афганистан|Иран","Афганистан":"Иран|Пакистан|Китай|Таджикистан|Узбекистан|Туркменистан","Иран":"Турция|Ирак|Пакистан|Афганистан|Туркменистан|Азербайджан|Армения","Турция":"Греция|Болгария|Грузия|Армения|Азербайджан|Иран|Ирак|Сирия","Саудовская Аравия":"Иордания|Ирак|Кувейт|Катар|ОАЭ|Оман|Йемен","Египет":"Ливия|Судан|Израиль","Ливия":"Египет|Судан|Чад|Нигер|Алжир|Тунис","Алжир":"Тунис|Ливия|Нигер|Мали|Мавритания|Марокко","Марокко":"Алжир","Нигерия":"Бенин|Нигер|Чад|Камерун","Кения":"Эфиопия|Сомали|Танзания|Уганда|Южный Судан","Бразилия":"Уругвай|Аргентина|Парагвай|Боливия|Перу|Колумбия|Венесуэла|Гайана|Суринам","Аргентина":"Чили|Боливия|Парагвай|Бразилия|Уругвай","Чили":"Перу|Боливия|Аргентина","Колумбия":"Венесуэла|Бразилия|Перу|Эквадор|Панама","Южная Корея":"","Япония":"","Великобритания":"","Новая Зеландия":""};
+function neighborsOf(country){const owned=countries.filter(c=>c.owner==="me");const names=new Set();owned.forEach(own=>(borders[own.name]||"").split("|").filter(Boolean).forEach(n=>names.add(n)));return [...names].filter(n=>n!==country.name)}
+let nick="",chosen=null,me=null,money=0,econ=1,power=10,factories=1,allies=[],logs=[],region="Все",lastIncomeAt=0;
+const total=countries.length;
+const STORAGE_KEY="world75_unique_player_v1";
+function safeGet(key){try{return localStorage.getItem(key)}catch(e){return null}}
+function safeSet(key,value){try{localStorage.setItem(key,value)}catch(e){}}
+function createUniqueNick(){
+ let existing=safeGet(STORAGE_KEY);
+ if(existing && /^Игрок-[0-9A-F]{32}$/.test(existing)) return existing;
+ let hex="";
+ try{
+  if(window.crypto && typeof crypto.randomUUID==="function") hex=crypto.randomUUID().replace(/-/g,"").toUpperCase();
+  else {const a=new Uint8Array(16);crypto.getRandomValues(a);hex=Array.from(a,x=>x.toString(16).padStart(2,"0")).join("").toUpperCase()}
+ }catch(e){
+  hex=Array.from({length:32},()=>Math.floor(Math.random()*16).toString(16)).join("").toUpperCase();
+ }
+ const generated="Игрок-"+hex;
+ safeSet(STORAGE_KEY,generated);
+ return generated;
+}
+nick=createUniqueNick();
+$("nick").textContent=nick;
+function show(id){["start","lobby","choose","game","win"].forEach(x=>$(""+x).classList.toggle("hide",x!==id))}
+function log(s){logs.unshift(s);logs=logs.slice(0,7);$("logs").innerHTML=logs.map(x=>`<div class="log">${x}</div>`).join("")}
+function countryButton(c,selectable=false){
+ let b=document.createElement("button");b.className="country"+(c===chosen?" selected":"");
+ let f=document.createElement("span");f.className="flag";f.textContent=flag(c.name);
+ let info=document.createElement("span");info.style.minWidth="0";
+ let name=document.createElement("b");name.style.display="block";name.style.fontSize="12px";name.textContent=c.name;
+ let sub=document.createElement("span");sub.className="muted small";sub.textContent=c.region;
+ info.append(name,sub);b.append(f,info);
+ b.onclick=()=>{if(selectable){chosen=c;renderChoose()}else log(c.name+": "+(c.owner==="me"?"Твоя страна":c.owner==="ally"?"Союзник":c.owner==="ai"?"Под управлением ИИ":"Независимая страна"))};
+ return b;
+}
+let countryLimit=48;
+function renderChoose(){
+ $("regions").replaceChildren();
+ const regionFragment=document.createDocumentFragment();
+ ["Все",...Object.keys(regions)].forEach(r=>{
+  let b=document.createElement("button");b.textContent=r;b.className=region===r?"primary":"";
+  b.onclick=()=>{region=r;countryLimit=48;renderChoose()};regionFragment.append(b);
+ });
+ $("regions").append(regionFragment);
+ let q=$("search").value.trim().toLocaleLowerCase("ru");
+ let list=countries.filter(c=>(region==="Все"||c.region===region)&&c.name.toLocaleLowerCase("ru").includes(q));
+ $("countries").replaceChildren();
+ const fragment=document.createDocumentFragment();
+ list.slice(0,countryLimit).forEach(c=>fragment.append(countryButton(c,true)));
+ $("countries").append(fragment);
+ $("moreCountries").classList.toggle("hide",list.length<=countryLimit);
+ $("moreCountries").textContent="Показать ещё ("+(list.length-countryLimit)+")";
+ $("preview").classList.toggle("hide",!chosen);
+ if(chosen){$("bigflag").textContent=flag(chosen.name);$("selectedname").textContent=chosen.name;$("selectedregion").textContent=chosen.region}
+}
+$("moreCountries").onclick=()=>{countryLimit+=48;renderChoose()};
+function begin(){if(!chosen)return;countries.forEach(c=>{c.owner="free";c.strength=1});me=chosen;me.owner="me";const stats=startStats(me);money=stats.cash;factories=stats.factories;econ=factories;power=stats.power;allies=[];logs=[];lastIncomeAt=Date.now();log("Ты начал игру за "+me.name+". Заводов: "+factories+", армия: "+power+".");show("game");render()}
+
+function fillSelect(id){const el=$(id),isTarget=id==="target",search=$(isTarget?"targetSearch":"allySearch").value.trim().toLocaleLowerCase("ru");const allowed=isTarget?neighborsOf(me):countries.filter(c=>c.owner==="free").map(c=>c.name);const list=countries.filter(c=>allowed.includes(c.name)&&c.owner==="free"&&c.name.toLocaleLowerCase("ru").includes(search)).sort((a,b)=>a.name.localeCompare(b.name,"ru"));const current=el.value,fragment=document.createDocumentFragment();list.forEach(c=>{let o=document.createElement("option");o.value=c.name;o.textContent=flag(c.name)+" "+c.name;fragment.append(o)});el.replaceChildren(fragment);if(current&&list.some(c=>c.name===current))el.value=current}
+function render(){let owned=countries.filter(c=>c.owner==="me").length,pct=owned/total*100;$("gameflag").textContent=flag(me.name);$("gamename").textContent=me.name;$("ruler").textContent=nick;$("money").textContent=money.toLocaleString("ru-RU")+" 💰";$("econ").textContent="Заводов: "+factories;$("power").textContent=power;$("percent").textContent=pct.toFixed(1)+"%";$("progresslabel").textContent=owned+" / "+Math.ceil(total*.75)+" стран";$("progress").style.width=Math.min(100,pct/75*100)+"%";$("allies").textContent=allies.length;$("factories").textContent=factories;$("income").textContent=(factories*25).toLocaleString("ru-RU")+" 💰";$("econcost").textContent=(350+factories*250).toLocaleString("ru-RU");$("armyvalue").textContent=power;$("armycost").textContent=(power*25).toLocaleString("ru-RU");fillSelect("target");fillSelect("allytarget");$("allylist").textContent="Союзники: "+(allies.join(", ")||"пока нет");if(pct>=75){$("wintext").textContent="Ты контролируешь "+pct.toFixed(1)+"% стран мира!";show("win")}}
+function updateIncome(){if(!me||$("game").classList.contains("hide"))return;const now=Date.now(),periods=Math.floor((now-lastIncomeAt)/20000);if(periods>0){const gain=periods*factories*25;money+=gain;lastIncomeAt+=periods*20000;log("Доход от заводов: +"+gain.toLocaleString("ru-RU")+" 💰.");render()}const left=Math.max(0,20-Math.floor((now-lastIncomeAt)/1000));$("incomeTimer").textContent="Следующий доход: "+left+" сек."}
+
+$("enter").onclick=()=>{$("player").textContent=nick;show("lobby")};
+$("play").onclick=()=>{chosen=null;region="Все";$("search").value="";show("choose");renderChoose()};
+$("search").oninput=renderChoose;$("confirm").onclick=begin;
+const pages={overview:"overview",economy:"economyPage",army:"armyPage",diplomacy:"diplomacyPage",world:"worldPage"};
+$("tabs").querySelectorAll("button").forEach(b=>b.onclick=()=>{
+ Object.entries(pages).forEach(([key,id])=>$(id).classList.toggle("hide",key!==b.dataset.page));
+ $("tabs").querySelectorAll("button").forEach(x=>x.classList.toggle("active",x===b));
+ if(b.dataset.page==="world") renderWorld();
+});
+$("upgrade").onclick=()=>{let cost=350+factories*250;if(money<cost){log("Не хватает денег на новый завод.");return}money-=cost;factories++;econ=factories;log("Построен новый завод. Доход вырос.");render()};
+$("train").onclick=()=>{let cost=power*20;if(money<cost){log("Не хватает денег.");return}money-=cost;power+=5;log("Армия усилена.");render()};
+$("attack").onclick=()=>{let c=countries.find(x=>x.name===$("target").value);if(!c||c.owner!=="free"||!neighborsOf(me).includes(c.name)){log("Можно захватывать только свободные соседние страны.");return}if(power+Math.random()*12>c.strength+Math.random()*16){c.owner="me";c.strength=power;log("Успешное расширение: теперь под твоим контролем "+c.name+".")}else{power=Math.max(1,power-2);log("Попытка захвата не удалась. Армия ослабла.")}render()};
+$("ally").onclick=()=>{let c=countries.find(x=>x.name===$("allytarget").value);if(!c||c.owner!=="free")return;if(money<100){log("Не хватает денег.");return}money-=100;c.owner="ally";allies.push(c.name);log("Заключён союз с "+c.name+".");render()};
+function renderWorld(){
+ let q=$("worldsearch").value.toLocaleLowerCase("ru"),fragment=document.createDocumentFragment();
+ countries.filter(c=>c.name.toLocaleLowerCase("ru").includes(q)).sort((a,b)=>a.name.localeCompare(b.name,"ru")).forEach(c=>fragment.append(countryButton(c)));
+ $("world").replaceChildren(fragment);
+}
+$("worldsearch").oninput=renderWorld;$("targetSearch").oninput=()=>fillSelect("target");$("allySearch").oninput=()=>fillSelect("allytarget");
+function reset(){countries.forEach(c=>{c.owner="free";c.strength=1});chosen=null;region="Все";$("search").value="";show("choose");renderChoose()}
+$("newgame").onclick=()=>{if(confirm("Начать новую игру? Текущий прогресс будет потерян."))reset()};
+$("restart").onclick=()=>{reset()};
+show("start");setInterval(updateIncome,1000);document.addEventListener("visibilitychange",()=>{if(!document.hidden)updateIncome()});
+})();
+</script>
+</body>
+</html>
